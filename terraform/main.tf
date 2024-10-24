@@ -104,7 +104,7 @@ resource "google_secret_manager_secret_iam_policy" "policy" {
 # Create the GitHub connection
 resource "google_cloudbuildv2_connection" "my_connection" {
     project = var.project_name
-    location = "us-central1"
+    location = var.region
     name = "github-integration"
 
     github_config {
@@ -115,6 +115,15 @@ resource "google_cloudbuildv2_connection" "my_connection" {
     }
 
     depends_on = [google_secret_manager_secret_iam_policy.policy]
+}
+
+# Link repository
+resource "google_cloudbuildv2_repository" "my_repository" {
+    project = var.project_name
+    location = var.region
+    name = var.github_repo_name
+    parent_connection = google_cloudbuildv2_connection.my_connection.name
+    remote_uri = var.github_repo_uri
 }
 
 ###########################################################################

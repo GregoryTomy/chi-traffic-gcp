@@ -18,6 +18,11 @@ variable "gcs_bucket_location" {
     default = "US"
 }
 
+variable "region" {
+    description = "Project region"
+    default = "us-central1"
+}
+
 variable "gcs_bucket_name" {
     description = "GCS bucket name for Chicago traffic data"
     default = "chi-traffic-gcp-bucket"
@@ -26,4 +31,14 @@ variable "gcs_bucket_name" {
 variable "github_pat" {
     type = string
     sensitive = true
+}
+
+variable "github_repo_name" {
+    description = "Name of GitHub repo connected to cloud run"
+    default = "chi-traffic-gcp"
+}
+
+variable "github_repo_uri" {
+    description = "URI of GitHub repo connected to cloud run"
+    default ="https://github.com/GregoryTomy/chi-traffic-gcp.git"
 }
