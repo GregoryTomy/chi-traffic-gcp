@@ -14,6 +14,8 @@ gcloud services enable composer.googleapis.com
 gcloud services enable run.googleapis.com
 gcloud services enable bigquery.googleapis.com
 gcloud services enable storage.googleapis.com
+gcloud services enable build.googleapis.com
+gcloud services enable secretmanager.googleapis.com
 
 # Create the service account
 gcloud iam service-accounts create $TF_SERVICE_ACCOUNT_NAME \
@@ -47,6 +49,13 @@ gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
   --member="serviceAccount:$TF_SERVICE_ACCOUNT_NAME@$GCP_PROJECT_ID.iam.gserviceaccount.com" \
   --role="roles/resourcemanager.projectIamAdmin"
 
+gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
+  --member="serviceAccount:$TF_SERVICE_ACCOUNT_NAME@$GCP_PROJECT_ID.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.admin"
+
+gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
+  --member="serviceAccount:$TF_SERVICE_ACCOUNT_NAME@$GCP_PROJECT_ID.iam.gserviceaccount.com" \
+  --role="roles/cloudbuild.connectionAdmin"
 
 echo "Assigned roles to $TF_SERVICE_ACCOUNT_NAME"
 

@@ -22,3 +22,8 @@ variable "gcs_bucket_name" {
     description = "GCS bucket name for Chicago traffic data"
     default = "chi-traffic-gcp-bucket"
 }
+
+variable "github_pat" {
+    type = string
+    sensitive = true
+}
