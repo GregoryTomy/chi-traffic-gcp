@@ -8,6 +8,11 @@ variable "project_name" {
     default = "chi-traffic-gcp"
 }
 
+variable "project_number" {
+  description = "Project number"
+  default     = 450286238433
+}
+
 variable "gcs_bucket_location" {
     description = "Project location"
     default = "US"
