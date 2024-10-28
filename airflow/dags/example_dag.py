@@ -1,27 +1,7 @@
-# Copyright 2021 Google LLC
-
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-
-#     https://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-import datetime
-
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.utils.dates import days_ago
-
-# If you are running Airflow in more than one time zone
-# see https://airflow.apache.org/docs/apache-airflow/stable/timezone.html
-# for best practices
-YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
+import datetime
 
 default_args = {
     "owner": "Composer Example 2",
@@ -34,13 +14,17 @@ default_args = {
     "start_date": days_ago(1),
 }
 
-with DAG(
+# Define the DAG object at the module level
+dag = DAG(
     "composer_sample_dag_2",
     catchup=False,
     default_args=default_args,
     schedule_interval=datetime.timedelta(days=1),
-) as dag:
-    # Print the dag_run id from the Airflow logs
-    print_dag_run_conf = BashOperator(
-        task_id="print_dag_run_conf", bash_command="echo {{ dag_run.id }}"
-    )
+)
+
+# Define the task and assign it to the DAG
+print_dag_run_conf = BashOperator(
+    task_id="print_dag_run_conf",
+    bash_command="echo {{ dag_run.id }}",
+    dag=dag,  # Ensure the task is attached to the dag object
+)
