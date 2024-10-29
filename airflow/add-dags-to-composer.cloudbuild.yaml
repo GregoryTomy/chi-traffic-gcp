@@ -1,10 +1,10 @@
 steps:
   - name: python
-    entrypoint: pip
+    entrypoint: bash
     args: ["-c", "cd airflow && pip install -r utils/requirements.txt --user"]
 
   - name: python
-    entrypoint: python
+    entrypoint: bash
     args: ["-c", "cd airflow && python utils/add_dags_to_composer.py --dags_directory=${_DAGS_DIRECTORY} --dags_bucket=${_DAGS_BUCKET}"]
 
 options:
