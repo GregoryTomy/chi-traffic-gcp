@@ -22,6 +22,7 @@ def _create_dags_list(dags_directory: str) -> tuple[str, list[str]]:
     # The only Python files left in our temp directory are DAG files
     # so we can exclude all non Python files
     dags = glob.glob(f"{temp_dir}/*.py")
+    print(dags)
     return (temp_dir, dags)
 
 
@@ -50,6 +51,7 @@ def upload_dags_to_composer(
         for dag in dags:
             # Remove path to temp dir
             dag = dag.replace(f"{temp_dir}/", name_replacement)
+            print(dag)
 
             try:
                 # Upload to your bucket
