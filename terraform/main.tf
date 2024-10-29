@@ -62,6 +62,11 @@ resource "google_composer_environment" "composer_environment" {
     config {
       software_config {
         image_version = "composer-2.9.7-airflow-2.9.3"
+        pypi_packages = {
+            apache-airflow-providers-google=">=10.24.0"
+            pyarrow=">=18.0.0"
+            requests=">=2.32.3"
+        }
       }
       node_config {
         service_account = google_service_account.composer_service_account.email
