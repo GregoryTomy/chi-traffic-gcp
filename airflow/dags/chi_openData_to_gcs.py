@@ -19,6 +19,7 @@ from google.cloud import storage
 
 # GCS Variables
 BUCKET = "chi-traffic-de-bucket"
+TEMP_DIR = "/home/airflow/gcs/data"
 
 TRAFFIC_DATASETS = {
     "crash": "https://data.cityofchicago.org/resource/85ca-t3if.csv?$limit=1000000",
@@ -32,7 +33,7 @@ default_args = {"owner": "duncanh", "depends_on_past": False, "retries": 1}
 EXECUTION_DATE = "{{ds_nodash}}"
 
 with DAG(
-    "1.0_fetch_and_upload_CHI_data_v7",
+    "1.0_fetch_and_upload_CHI_data",
     default_args=default_args,
     description="Fetch multiple datasets from Chicago OpenData API, store temporarily, and display row count",
     schedule_interval=None,
@@ -42,7 +43,7 @@ with DAG(
     def fetch_dataset(api_url, tmp_file_name, **kwargs):
         response = requests.get(api_url)
         if response.status_code == 200:
-            file_path = f"/tmp/{tmp_file_name}.csv"
+            file_path = os.path.join(TEMP_DIR, f"{tmp_file_name}.csv")
             with open(file_path, "wb") as file:
                 file.write(response.content)
             return file_path

@@ -64,8 +64,9 @@ resource "google_composer_environment" "composer_environment" {
         image_version = "composer-2.9.7-airflow-2.9.3"
         pypi_packages = {
             apache-airflow-providers-google=">=10.24.0"
-            pyarrow=">=18.0.0"
-            requests=">=2.32.3"
+            apache-airflow-providers-docker=">=3.14.0"
+            pyarrow=">=14.0.1"
+            requests=">=2.27.0"
         }
       }
       node_config {
