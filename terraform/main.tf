@@ -76,7 +76,7 @@ resource "google_composer_environment" "composer_environment" {
 }
 
 ###########################################################################
-# GitHub CloudRun Set Up
+# GitHub Cloud Build Set Up
 ###########################################################################
 # Create a secret containing the personal access token and grant permissions
 # to the Service Agent
@@ -130,6 +130,32 @@ resource "google_cloudbuildv2_repository" "my_repository" {
     name = var.github_repo_name
     parent_connection = google_cloudbuildv2_connection.my_connection.name
     remote_uri = var.github_repo_uri
+}
+
+###########################################################################
+# Google Artifact Registry
+###########################################################################
+resource "google_artifact_registry_repository" "dbt_repository" {
+    location = var.region
+    repository_id = "dbt-images"
+    description = "Repository for dbt project docker images"
+    format = "DOCKER"
+}
+
+###########################################################################
+# Google Cloud Run Job
+###########################################################################
+resource "google_cloud_run_v2_job" "dbt_cloud_run_job" {
+    name = "dbt-cloud-run-job"
+    location = var.region
+
+    template {
+        template {
+          containers {
+            image ="${var.region}-docker.pkg.dev/${var.project_name}/${google_artifact_registry_repository.dbt_repository.repository_id}/dbt-image:latest"
+          }
+        }
+    }
 }
 
 ###########################################################################

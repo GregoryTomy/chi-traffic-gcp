@@ -1,9 +1,4 @@
-import os
-import logging
-import datetime as dt
-
 from airflow import DAG
-from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import (
     GCSToBigQueryOperator,
@@ -16,18 +11,22 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from google.cloud import storage
 
 # GCS Variables
-BUCKET = "chi-traffic-de-bucket"
+BUCKET = "chi-traffic-gcp-bucket"
 
-default_args = {"owner": "duncanh", "depends_on_past": False, "retries": 1}
 # BigQuery Variables
 BQ_DATASET = "raw_data"
+
 TABLES = {
     "crash": "traffic_data/crash/chi_traffic_crash_{{ds_nodash}}.parquet",
     "people": "traffic_data/people/chi_traffic_people_{{ds_nodash}}.parquet",
     "vehicle": "traffic_data/vehicle/chi_traffic_vehicle_{{ds_nodash}}.parquet",
 }
 
-default_args = {"owner": "duncanh", "depends_on_past": False, "retries": 1}
+default_args = {
+    "owner": "duncanh",
+    "depends_on_past": False,
+    "retries": 1,
+}
 
 with DAG(
     "2.0_export_data_from_GCS_to_GCP",

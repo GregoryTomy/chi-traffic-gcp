@@ -3,16 +3,22 @@ import os
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
+from airflow.providers.google.cloud.operators.cloud_run import (
+    CloudRunJobExecuteOperator,
+)
 from airflow.utils.dates import days_ago
-from airflow.operators.docker_operator import DockerOperator
 from docker.types import Mount
 
-default_args = {"owner": "duncnh", "depends_on_past": False, "retries": 0}
+default_args = {
+    "owner": "duncnh",
+    "depends_on_past": False,
+    "retries": 0,
+}
 
 with DAG(
     "3.0_dbt_transformations",
     default_args=default_args,
-    description="Run dbt transformations to build BigQuery tables",
+    description="Trigger Cloud Run Job to run dbt transformations Docker container to build BigQuery tables",
     schedule_interval=None,
     start_date=days_ago(1),
     catchup=False,
@@ -20,31 +26,11 @@ with DAG(
 
     print_date = BashOperator(task_id="print_current_date", bash_command="date")
 
-    run_dbt_docker = DockerOperator(
-        task_id="run_dbt_docker",
-        image="dbt_docker",
-        container_name="dbt_docker_run",
-        api_version="auto",
-        auto_remove=True,
-        command="build",
-        docker_url="tcp://docker-proxy:2375",
-        network_mode="bridge",
-        mounts=[
-            Mount(
-                source=os.getenv("DBT_PROJ_DIR"),
-                target="/usr/app",
-                type="bind",
-            ),
-            Mount(
-                source=os.getenv("DBT_CONFIG_PATH"), target="/root/.dbt", type="bind"
-            ),
-            Mount(
-                source=os.getenv("DBT_GCP_KEY"),
-                target="/root/.google/credentials/dbt_gcp_sa_key.json",
-                type="bind",
-            ),
-        ],
-        mount_tmp_dir=False,
+    trigger_cloud_run_job = CloudRunJobExecuteOperator(
+        task_id="trigger_cloud_run_job",
+        project_id="chi-traffic-gcp",
+        location="us-central1",
+        job_name="dbt-cloud-run-job",
     )
 
     print_end_task = BashOperator(
@@ -52,4 +38,4 @@ with DAG(
         bash_command='echo "DBT runs finished successfully"',
     )
 
-    print_date >> run_dbt_docker >> print_end_task
+    print_date >> trigger_cloud_run_job >> print_end_task
