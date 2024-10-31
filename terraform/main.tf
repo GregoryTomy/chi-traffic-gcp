@@ -143,16 +143,16 @@ resource "google_artifact_registry_repository" "dbt_repository" {
 }
 
 ###########################################################################
-# Google Cloud Run
+# Google Cloud Run Job
 ###########################################################################
-resource "google_cloud_run_service" "dbt-cloud-run" {
-    name = "dbt-cloud-run"
+resource "google_cloud_run_v2_job" "dbt_cloud_run_job" {
+    name = "dbt-cloud-run-job"
     location = var.region
 
     template {
-        spec {
+        template {
           containers {
-            image =
+            image ="${var.region}-docker.pkg.dev/${var.project_name}/${google_artifact_registry_repository.dbt_repository.repository_id}/dbt-image:latest"
           }
         }
     }
