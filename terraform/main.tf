@@ -56,24 +56,24 @@ resource "google_service_account_iam_member" "composer_sa_roles" {
     member = "serviceAccount:service-${var.project_number}@cloudcomposer-accounts.iam.gserviceaccount.com"
 }
 
-# # Provision a Cloud Composer environement
-# resource "google_composer_environment" "composer_environment" {
-#     name = "chi-composer-environment"
-#     config {
-#       software_config {
-#         image_version = "composer-2.9.7-airflow-2.9.3"
-#         pypi_packages = {
-#             apache-airflow-providers-google=">=10.24.0"
-#             apache-airflow-providers-docker=">=3.14.0"
-#             pyarrow=">=14.0.1"
-#             requests=">=2.27.0"
-#         }
-#       }
-#       node_config {
-#         service_account = google_service_account.composer_service_account.email
-#       }
-#     }
-# }
+# Provision a Cloud Composer environement
+resource "google_composer_environment" "composer_environment" {
+    name = "chi-composer-environment"
+    config {
+      software_config {
+        image_version = "composer-2.9.7-airflow-2.9.3"
+        pypi_packages = {
+            apache-airflow-providers-google=">=10.24.0"
+            apache-airflow-providers-docker=">=3.14.0"
+            pyarrow=">=14.0.1"
+            requests=">=2.27.0"
+        }
+      }
+      node_config {
+        service_account = google_service_account.composer_service_account.email
+      }
+    }
+}
 
 ###########################################################################
 # GitHub Cloud Build Set Up
