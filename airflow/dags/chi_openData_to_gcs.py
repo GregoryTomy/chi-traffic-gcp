@@ -21,19 +21,34 @@ TRAFFIC_DATASETS = {
     "people": "https://data.cityofchicago.org/resource/u6pd-qa9d.csv?$limit=2000000",
 }
 
-
-default_args = {"owner": "duncanh", "depends_on_past": False, "retries": 1}
+default_args = {
+    "owner": "duncanh",
+    "depends_on_past": False,
+    "retries": 1,
+}
 
 
 with DAG(
-    "TEST_fetch_and_upload_CHI_data_v5",
+    "1.0_fetch_and_upload_CHI_data",
     default_args=default_args,
-    description="Fetch multiple datasets from Chicago OpenData API.",
+    description="Fetch multiple datasets from Chicago OpenData API, process it, and load it to GCP.",
     schedule_interval=None,
     start_date=days_ago(1),
 ) as dag:
 
     def fetch_dataset(api_url, tmp_file_name, **kwargs):
+        """Fetch data from API URL and save it to a CSV file:
+
+        Args:
+            api_url (str): The URL from which to fetch the data.
+            tmp_file_name (str): Temporary filename for saving the CSV.
+
+        Raises:
+            Exception: If the data fetching fails.
+
+        Returns:
+            str: The path to saved CSV file.
+        """
         logging.info(f"Starting to fetch data from {api_url}")
         response = requests.get(api_url)
         logging.info(f"Response status code: {response.status_code}")
@@ -53,6 +68,14 @@ with DAG(
             )
 
     def format_csv_to_parquet(csv_file_path):
+        """Convert a CSV file to Parquet format for optimized storage and querying.
+
+        Args:
+            csv_file_path (str): Path to the CSV file to be converted.
+
+        Returns:
+            str: The path to the generated Parquet file.
+        """
         try:
             logging.info(f"Starting conversion of {csv_file_path} to Parquet.")
             table = csv.read_csv(csv_file_path)
@@ -66,11 +89,6 @@ with DAG(
         except Exception as e:
             logging.error(f"Failed to convert {csv_file_path} to Parquet: {str(e)}")
             raise
-
-    trigger_second_dag = TriggerDagRunOperator(
-        task_id="trigger_gcs_to_gcp",
-        trigger_dag_id="2.0_export_data_from_GCS_to_GCP",
-    )
 
     for dataset_name, api_url in TRAFFIC_DATASETS.items():
         fetch_data = PythonOperator(
@@ -102,4 +120,10 @@ with DAG(
 
         fetch_data >> format_to_parquet >> upload_parquet
 
+    trigger_second_dag = TriggerDagRunOperator(
+        task_id="trigger_gcs_to_gcp",
+        trigger_dag_id="2.0_export_data_from_GCS_to_GCP",
+    )
+
+    # ensure that all upload tasks are completed before triggering the secondary DAG
     [upload_parquet for datset_name in TRAFFIC_DATASETS] >> trigger_second_dag

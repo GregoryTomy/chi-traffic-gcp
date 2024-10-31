@@ -56,27 +56,27 @@ resource "google_service_account_iam_member" "composer_sa_roles" {
     member = "serviceAccount:service-${var.project_number}@cloudcomposer-accounts.iam.gserviceaccount.com"
 }
 
-# Provision a Cloud Composer environement
-resource "google_composer_environment" "composer_environment" {
-    name = "chi-composer-environment"
-    config {
-      software_config {
-        image_version = "composer-2.9.7-airflow-2.9.3"
-        pypi_packages = {
-            apache-airflow-providers-google=">=10.24.0"
-            apache-airflow-providers-docker=">=3.14.0"
-            pyarrow=">=14.0.1"
-            requests=">=2.27.0"
-        }
-      }
-      node_config {
-        service_account = google_service_account.composer_service_account.email
-      }
-    }
-}
+# # Provision a Cloud Composer environement
+# resource "google_composer_environment" "composer_environment" {
+#     name = "chi-composer-environment"
+#     config {
+#       software_config {
+#         image_version = "composer-2.9.7-airflow-2.9.3"
+#         pypi_packages = {
+#             apache-airflow-providers-google=">=10.24.0"
+#             apache-airflow-providers-docker=">=3.14.0"
+#             pyarrow=">=14.0.1"
+#             requests=">=2.27.0"
+#         }
+#       }
+#       node_config {
+#         service_account = google_service_account.composer_service_account.email
+#       }
+#     }
+# }
 
 ###########################################################################
-# GitHub CloudRun Set Up
+# GitHub Cloud Build Set Up
 ###########################################################################
 # Create a secret containing the personal access token and grant permissions
 # to the Service Agent
@@ -130,6 +130,32 @@ resource "google_cloudbuildv2_repository" "my_repository" {
     name = var.github_repo_name
     parent_connection = google_cloudbuildv2_connection.my_connection.name
     remote_uri = var.github_repo_uri
+}
+
+###########################################################################
+# Google Artifact Registry
+###########################################################################
+resource "google_artifact_registry_repository" "dbt_repository" {
+    location = var.region
+    repository_id = "dbt-images"
+    description = "Repository for dbt project docker images"
+    format = "DOCKER"
+}
+
+###########################################################################
+# Google Cloud Run
+###########################################################################
+resource "google_cloud_run_service" "dbt-cloud-run" {
+    name = "dbt-cloud-run"
+    location = var.region
+
+    template {
+        spec {
+          containers {
+            image =
+          }
+        }
+    }
 }
 
 ###########################################################################

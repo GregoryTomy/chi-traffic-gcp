@@ -7,12 +7,16 @@ from airflow.utils.dates import days_ago
 from airflow.operators.docker_operator import DockerOperator
 from docker.types import Mount
 
-default_args = {"owner": "duncnh", "depends_on_past": False, "retries": 0}
+default_args = {
+    "owner": "duncnh",
+    "depends_on_past": False,
+    "retries": 0,
+}
 
 with DAG(
     "3.0_dbt_transformations",
     default_args=default_args,
-    description="Run dbt transformations to build BigQuery tables",
+    description="Run dbt transformations Docker container to build BigQuery tables",
     schedule_interval=None,
     start_date=days_ago(1),
     catchup=False,
