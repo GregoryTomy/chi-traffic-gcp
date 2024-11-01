@@ -42,3 +42,8 @@ variable "github_repo_uri" {
     description = "URI of GitHub repo connected to cloud run"
     default ="https://github.com/GregoryTomy/chi-traffic-gcp.git"
 }
+
+variable "bq_dataset_name" {
+  description = "BigQuery datset name for chicago traffic crash data"
+  default     = "raw_data"
+}
