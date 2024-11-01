@@ -161,3 +161,9 @@ resource "google_cloud_run_v2_job" "dbt_cloud_run_job" {
 ###########################################################################
 # Google Big Query
 ###########################################################################
+
+# Google Big Query Dataset
+resource "google_bigquery_dataset" "chi-traffic-dataset" {
+  dataset_id                 = var.bq_dataset_name
+  delete_contents_on_destroy = true
+}
