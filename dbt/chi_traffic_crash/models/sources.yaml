@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: staging
-    database: sf-traffic-de
+    database: chi-traffic-gcp
     schema: raw_data
 
     tables:

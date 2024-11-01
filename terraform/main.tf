@@ -151,6 +151,7 @@ resource "google_cloud_run_v2_job" "dbt_cloud_run_job" {
 
     template {
         template {
+            service_account = google_service_account.composer_service_account.email
           containers {
             image ="${var.region}-docker.pkg.dev/${var.project_name}/${google_artifact_registry_repository.dbt_repository.repository_id}/dbt-image:latest"
           }
