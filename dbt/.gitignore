@@ -5,7 +5,7 @@ logs/
 keys/
 
 # User-specific profiles (contains sensitive connection info)
-profiles.yml
+# profiles.yml
 
 # Python virtual environments
 venv/
